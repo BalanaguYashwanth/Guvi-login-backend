@@ -11,7 +11,12 @@ const app = express();
 const PORT = SERVER_PORT;
 
 app.use(express.json());
-app.use(cors());
+
+var corsOptions = {
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  optionsSuccessStatus: 200, // For legacy browser support
+};
+app.use(cors(corsOptions));
 
 app.use("/auth", authRoutes);
 app.use("/api", userRoutes);
