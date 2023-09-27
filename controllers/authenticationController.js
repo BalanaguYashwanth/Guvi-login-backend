@@ -14,6 +14,9 @@ const register = asyncHandler(async (req, res) => {
   if (!(name && email && password && confirmpassword)) {
     return res.status(400).json({ message: "please enter all fields" });
   }
+  if (!email.match(VALIDATE_EMAIL_REGEX)) {
+    return res.status(400).json({ message: "Enter valid email" });
+  }
   const emailExists = await Auth.findOne({ email });
   if (emailExists) {
     return res

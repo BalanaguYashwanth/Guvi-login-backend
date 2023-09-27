@@ -1,5 +1,9 @@
 const asyncHandler = require("express-async-handler");
 const User = require("../models/userModel");
+const {
+  VALIDATE_EMAIL_REGEX,
+  VALIDATE_DATE_REGEX,
+} = require("../config/contants");
 
 const getUserDetails = asyncHandler(async (req, res) => {
   const users = await User.find({ user_id: req.user.id });
@@ -10,16 +14,28 @@ const getUserDetails = asyncHandler(async (req, res) => {
 const updateUserDetails = asyncHandler(async (req, res) => {
   const { age, gender, dob, phone } = req.body;
   const { id, name, email } = req.user;
+
+  req.body.email = req?.body?.email ? req.body.email : email;
+
   if (!(age && gender && dob && phone)) {
     return res.status(400).json({ message: "please enter all fields" });
   } else if (typeof gender !== "number") {
     return res.status(400).json({ message: "Gender should be number" });
   } else if (typeof age != "number" || age > 90) {
-    return res.status(400).json({ message: "Age must be less than 90" });
+    return res
+      .status(400)
+      .json({ message: "Age must number and should be less than 90" });
   } else if (phone.length < 10 || phone.length > 15) {
     return res
       .status(400)
       .json({ message: "Phone number should be between than 10-15" });
+  } else if (
+    req?.body?.email &&
+    !req?.body?.email?.match(VALIDATE_EMAIL_REGEX)
+  ) {
+    return res.status(400).json({ message: "Enter valid email" });
+  } else if (!dob.match(VALIDATE_DATE_REGEX)) {
+    return res.status(400).json({ message: "Enter valid dob" });
   }
 
   const hasUserIdExists = await User.find({ user_id: id });
